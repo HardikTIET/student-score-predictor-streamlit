@@ -2,6 +2,8 @@
 
 A simple web application built using Streamlit that predicts student exam scores. It utilizes a CatBoost regression model trained on data encompassing student demographics, academic habits, and lifestyle factors.
 
+**➡️ [Live Demo Link](https://hgtietstudent-score-prediction.streamlit.app/) ⬅️
+
 ## ✨ Features
 
 * Interactive web form for inputting student data using sliders, dropdowns, and number inputs.
