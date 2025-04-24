@@ -3,15 +3,10 @@ import pandas as pd
 import numpy as np
 import joblib
 import os
-# from sklearn.preprocessing import MinMaxScaler # Only needed if saving/loading fitted scaler
-import time # To timestamp the output
-
-# --- Page Configuration (MUST BE THE FIRST STREAMLIT COMMAND) ---
-# This line MUST come immediately after imports and before any other st.* call
+import time 
 st.set_page_config(page_title="Student Score Predictor", layout="wide", initial_sidebar_state="collapsed")
 
-# --- Add Background Color (NOW runs AFTER set_page_config) ---
-# Inject custom CSS to set the background color
+
 page_bg_color = """
 <style>
 [data-testid="stAppViewContainer"] > .main {
@@ -20,27 +15,27 @@ page_bg_color = """
 /* body { background-color: #90EE90; } */ /* Alternative selector */
 </style>
 """
-st.markdown(page_bg_color, unsafe_allow_html=True) # Apply CSS
+st.markdown(page_bg_color, unsafe_allow_html=True) 
 
 
-# --- Configuration ---
-MODEL_DIR = 'model_artifacts' # Directory relative to the app script
+
+MODEL_DIR = 'model_artifacts'
 MODEL_PATH = os.path.join(MODEL_DIR, 'catboost_student_performance_v1_model.pkl')
 CAT_INDICES_PATH = os.path.join(MODEL_DIR, 'catboost_categorical_feature_indices_v1.pkl')
 COLUMNS_PATH = os.path.join(MODEL_DIR, 'catboost_final_training_columns_v1.pkl')
 
-# Define reasonable Min/Max for manual scaling of wellbeing components
+
 SCALING_RANGES = {
     'sleep_hours': (4, 12),
     'exercise_frequency': (0, 7),
     'mental_health_rating': (1, 5)
 }
 
-# --- Load Model and Artifacts (Cached) ---
+
 @st.cache_resource
 def load_artifacts():
-    """Loads the saved model, categorical indices, and column list."""
-    # Check paths carefully
+   
+    
     if not os.path.exists(MODEL_DIR):
          st.error(f"ERROR: Directory '{MODEL_DIR}' not found. Please ensure it exists in the same folder as app.py.")
          return None, None, None
@@ -58,7 +53,7 @@ def load_artifacts():
         model = joblib.load(MODEL_PATH)
         cat_indices = joblib.load(CAT_INDICES_PATH)
         columns = joblib.load(COLUMNS_PATH)
-        print("Artifacts loaded successfully.") # Log for debugging
+        print("Artifacts loaded successfully.") 
         return model, cat_indices, columns
     except Exception as e:
         st.error(f"Error loading artifacts from '{MODEL_DIR}'. Error: {e}")
@@ -66,17 +61,11 @@ def load_artifacts():
 
 model, cat_indices, final_columns = load_artifacts()
 
-# Stop execution if artifacts failed to load
 if model is None or cat_indices is None or final_columns is None:
     st.warning("Model artifacts could not be loaded or found. App cannot proceed.")
-    st.stop() # Stop script execution
-
-# --- Preprocessing and Feature Engineering Function ---
+    st.stop()
 def preprocess_and_engineer(input_data_dict):
-    """
-    Takes raw user input dictionary, applies preprocessing and feature engineering,
-    and returns a DataFrame ready for model prediction, matching the training structure.
-    """
+   
     try:
         df = pd.DataFrame([input_data_dict])
 
@@ -133,7 +122,7 @@ def preprocess_and_engineer(input_data_dict):
              new_features_created.append('total_screen_time')
              cols_to_drop_from_fe.extend(screen_time_components)
 
-        # 4. Drop original numerical columns used in FE
+        # 4. Drop original numerical columns 
         unique_cols_to_drop = list(set(cols_to_drop_from_fe))
         existing_cols_to_drop = [col for col in unique_cols_to_drop if col in df.columns]
         if existing_cols_to_drop:
@@ -159,17 +148,15 @@ def preprocess_and_engineer(input_data_dict):
         return None
 
 
-# --- Streamlit UI Definition ---
+
 st.title("🎓 Student Exam Score Predictor")
 st.markdown("Enter student details to predict their potential exam score based on habits and background.")
 st.markdown("---")
 
-# --- Input Form ---
 with st.form("prediction_form"):
     st.subheader("Student Information & Habits")
     col1, col2, col3 = st.columns(3)
 
-    # Column 1: Demographics & Background
     with col1:
         st.markdown("**Demographics & Background**")
         age = st.number_input("Age", min_value=17, max_value=24, value=20, step=1, help="Student's age (17-24).")
@@ -179,7 +166,7 @@ with st.form("prediction_form"):
                                                 index=1, help="Highest education level of parents.")
         part_time_job = st.radio("Has Part-Time Job?", ["No", "Yes"], index=0, horizontal=True)
 
-    # Column 2: Academic Habits
+  
     with col2:
         st.markdown("**Academic Habits**")
         study_hours_per_day_in = st.slider("Study Hours per Day", min_value=0.0, max_value=12.0, value=3.0, step=0.5)
@@ -187,7 +174,6 @@ with st.form("prediction_form"):
         internet_quality = st.selectbox("Internet Quality at Home", ["Poor", "Average", "Good"], index=1)
         extracurricular_participation = st.radio("Participates in Extracurriculars?", ["No", "Yes"], index=1, horizontal=True)
 
-    # Column 3: Lifestyle & Wellbeing
     with col3:
         st.markdown("**Lifestyle & Wellbeing**")
         sleep_hours_in = st.slider("Avg Sleep Hours per Night", min_value=4.0, max_value=12.0, value=7.0, step=0.5, help="Sleep (4-12 hours).")
@@ -199,7 +185,6 @@ with st.form("prediction_form"):
 
     submitted = st.form_submit_button("Predict Exam Score")
 
-# --- Prediction Logic ---
 if submitted:
     with st.spinner("Analysing habits and predicting score..."):
         input_data = {
@@ -235,6 +220,6 @@ if submitted:
         else:
             st.error("Prediction could not be made due to preprocessing errors.")
 
-# --- Footer ---
+
 st.markdown("---")
 st.caption("Disclaimer: This predictive model provides an estimate based on patterns in the data it was trained on.")
