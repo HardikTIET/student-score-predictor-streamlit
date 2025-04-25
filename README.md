@@ -9,8 +9,6 @@ A simple web application built using Streamlit that predicts student exam scores
 * Interactive web form for inputting student data using sliders, dropdowns, and number inputs.
 * Predicts numerical exam scores based on the provided inputs.
 * Applies necessary preprocessing and feature engineering consistent with model training.
-* Clips the final predicted score to a realistic range (15-100).
-* Provides a simple interpretation of the predicted score range.
 * Utilizes a pre-trained CatBoost model loaded from saved artifacts.
 * Features a simple, clean UI with a light green background.
 
@@ -33,7 +31,6 @@ A simple web application built using Streamlit that predicts student exam scores
     
 2.  **Create and activate a Python virtual environment (Recommended):**
     
-
 3.  **Install required dependencies:**
    
 4.  **Ensure Model Artifacts are Present:**
